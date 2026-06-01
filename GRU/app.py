@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.datasets import imdb
 import matplotlib.pyplot as plt
 import os
-st.write("Files:", os.listdir())
+
 # ----------------------------
 # CONFIG
 # ----------------------------
@@ -14,7 +14,12 @@ vocab_size = 10000
 max_length = 200
 
 # ----------------------------
-# BUILD MODELS (IMPORTANT)
+# DEBUG: Check files
+# ----------------------------
+st.write("Files:", os.listdir())
+
+# ----------------------------
+# BUILD MODELS (MUST MATCH TRAINING)
 # ----------------------------
 def build_rnn():
     model = Sequential([
@@ -44,15 +49,30 @@ def build_gru():
     return model
 
 # ----------------------------
-# LOAD MODELS + WEIGHTS
+# LOAD MODELS
 # ----------------------------
 rnn_model = build_rnn()
 lstm_model = build_lstm()
 gru_model = build_gru()
 
-rnn_model.load_weights("rnn_model.weights.h5")
-lstm_model.load_weights("lstm_model.weights.h5")
-gru_model.load_weights("gru_model.weights.h5")
+# Safe loading
+try:
+    rnn_model.load_weights("rnn_model.weights.h5")
+    st.success("RNN weights loaded")
+except Exception as e:
+    st.error(f"RNN Load Error: {e}")
+
+try:
+    lstm_model.load_weights("lstm_model.weights.h5")
+    st.success("LSTM weights loaded")
+except Exception as e:
+    st.error(f"LSTM Load Error: {e}")
+
+try:
+    gru_model.load_weights("gru_model.weights.h5")
+    st.success("GRU weights loaded")
+except Exception as e:
+    st.error(f"GRU Load Error: {e}")
 
 # ----------------------------
 # WORD INDEX
@@ -110,7 +130,7 @@ if st.button("Analyze Review"):
         st.success(f"Sentiment: {sentiment}")
         st.info(f"Confidence: {confidence*100:.2f}%")
 
-        # Probability chart
+        # Chart
         pos_prob = prob
         neg_prob = 1 - prob
 
