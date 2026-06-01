@@ -1,14 +1,13 @@
 import streamlit as st
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.datasets import imdb
 import matplotlib.pyplot as plt
 
-# Load models
-rnn_model = tf.keras.models.load_model("rnn_model.h5")
-lstm_model = tf.keras.models.load_model("lstm_model.h5")
-gru_model = tf.keras.models.load_model("gru_model.h5")
+# Load models (IMPORTANT FIX)
+rnn_model = tf.keras.models.load_model("rnn_model.keras", compile=False)
+lstm_model = tf.keras.models.load_model("lstm_model.keras", compile=False)
+gru_model = tf.keras.models.load_model("gru_model.keras", compile=False)
 
 # Load word index
 word_index = imdb.get_word_index()
@@ -24,7 +23,6 @@ def encode_review(text):
             encoded.append(2)
     return encoded
 
-# Prediction function
 max_length = 200
 
 def predict(model, text):
@@ -37,62 +35,48 @@ def predict(model, text):
 st.title("🎬 Movie Review Sentiment Analysis System")
 st.subheader("Deep Learning Based Sentiment Classification")
 
-# Input
 review = st.text_area("Enter your movie review here...")
 
-# Model selection
-model_option = st.selectbox(
-    "Select Model",
-    ["SimpleRNN", "LSTM", "GRU"]
-)
+model_option = st.selectbox("Select Model", ["SimpleRNN", "LSTM", "GRU"])
 
-# Button
 if st.button("Analyze Review"):
     if review.strip() == "":
         st.warning("Please enter a review.")
     else:
-        # Select model
         if model_option == "SimpleRNN":
             model = rnn_model
         elif model_option == "LSTM":
             model = lstm_model
         else:
             model = gru_model
-        
-        # Prediction
+
         prob = predict(model, review)
         sentiment = "Positive" if prob >= 0.5 else "Negative"
         confidence = prob if prob >= 0.5 else 1 - prob
-        
-        # Output
+
         st.success(f"Sentiment: {sentiment}")
         st.info(f"Confidence: {confidence*100:.2f}%")
-        
-        # Probabilities
+
+        # Chart
         pos_prob = prob
         neg_prob = 1 - prob
-        
-        st.write("### Probability Distribution")
-        
-        # Chart
+
         fig, ax = plt.subplots()
-        labels = ["Positive", "Negative"]
-        values = [pos_prob, neg_prob]
-        ax.bar(labels, values)
+        ax.bar(["Positive", "Negative"], [pos_prob, neg_prob])
         ax.set_ylabel("Probability")
-        ax.set_title("Sentiment Confidence")
-        
+        ax.set_title("Confidence")
+
         st.pyplot(fig)
 
-# Comparison of all models
+# Compare all models
 if st.button("Compare All Models"):
     if review.strip() == "":
-        st.warning("Please enter a review.")
+        st.warning("Enter a review first.")
     else:
         rnn_p = predict(rnn_model, review)
         lstm_p = predict(lstm_model, review)
         gru_p = predict(gru_model, review)
-        
+
         st.write("### Model Comparison")
         st.write(f"SimpleRNN: {'Positive' if rnn_p>=0.5 else 'Negative'} ({rnn_p:.4f})")
         st.write(f"LSTM: {'Positive' if lstm_p>=0.5 else 'Negative'} ({lstm_p:.4f})")
