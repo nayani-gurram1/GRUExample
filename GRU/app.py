@@ -5,7 +5,8 @@ from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, GRU, Dense
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.datasets import imdb
 import matplotlib.pyplot as plt
-
+import os
+st.write("Files:", os.listdir())
 # ----------------------------
 # CONFIG
 # ----------------------------
