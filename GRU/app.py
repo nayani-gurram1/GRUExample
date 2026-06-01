@@ -5,7 +5,6 @@ from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, GRU, Dense
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.datasets import imdb
 import matplotlib.pyplot as plt
-import os
 
 # ----------------------------
 # CONFIG
@@ -14,65 +13,50 @@ vocab_size = 10000
 max_length = 200
 
 # ----------------------------
-# DEBUG: Check files
-# ----------------------------
-st.write("Files:", os.listdir())
-
-# ----------------------------
-# BUILD MODELS (MUST MATCH TRAINING)
+# BUILD MODELS
 # ----------------------------
 def build_rnn():
-    model = Sequential([
+    return Sequential([
         Embedding(vocab_size, 64),
         SimpleRNN(64),
         Dense(16, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    return model
 
 def build_lstm():
-    model = Sequential([
+    return Sequential([
         Embedding(vocab_size, 64),
         LSTM(64),
         Dense(16, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    return model
 
 def build_gru():
-    model = Sequential([
+    return Sequential([
         Embedding(vocab_size, 64),
         GRU(64),
         Dense(16, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
-    return model
 
 # ----------------------------
-# LOAD MODELS
+# INITIALIZE MODELS
 # ----------------------------
 rnn_model = build_rnn()
 lstm_model = build_lstm()
 gru_model = build_gru()
 
-# Safe loading
-try:
-    rnn_model.load_weights("rnn_model.weights.h5")
-    st.success("RNN weights loaded")
-except Exception as e:
-    st.error(f"RNN Load Error: {e}")
+# 🔥 IMPORTANT: BUILD MODELS BEFORE LOADING WEIGHTS
+rnn_model.build(input_shape=(None, max_length))
+lstm_model.build(input_shape=(None, max_length))
+gru_model.build(input_shape=(None, max_length))
 
-try:
-    lstm_model.load_weights("lstm_model.weights.h5")
-    st.success("LSTM weights loaded")
-except Exception as e:
-    st.error(f"LSTM Load Error: {e}")
-
-try:
-    gru_model.load_weights("gru_model.weights.h5")
-    st.success("GRU weights loaded")
-except Exception as e:
-    st.error(f"GRU Load Error: {e}")
+# ----------------------------
+# LOAD WEIGHTS
+# ----------------------------
+rnn_model.load_weights("rnn_model.weights.h5")
+lstm_model.load_weights("lstm_model.weights.h5")
+gru_model.load_weights("gru_model.weights.h5")
 
 # ----------------------------
 # WORD INDEX
@@ -86,7 +70,7 @@ def encode_review(text):
         if word in word_index and word_index[word] < vocab_size:
             encoded.append(word_index[word] + 3)
         else:
-            encoded.append(2)
+            encoded.append(2)  # unknown word
     return encoded
 
 def predict(model, text):
