@@ -6,9 +6,9 @@ from tensorflow.keras.datasets import imdb
 import matplotlib.pyplot as plt
 
 # Load models
-rnn_model = tf.keras.models.load_model("rnn_model.keras")
-lstm_model = tf.keras.models.load_model("lstm_model.keras")
-gru_model = tf.keras.models.load_model("gru_model.keras")
+rnn_model = tf.keras.models.load_model("rnn_model.h5")
+lstm_model = tf.keras.models.load_model("lstm_model.h5")
+gru_model = tf.keras.models.load_model("gru_model.h5")
 
 # Load word index
 word_index = imdb.get_word_index()
